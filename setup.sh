@@ -1,0 +1,92 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+	echo "input prefix dir without last / like:"
+	echo "/home/username/local"
+	echo "this must be absolute path"
+	exit 1
+fi
+
+# build zlib
+wget http://zlib.net/zlib-1.2.11.tar.gz
+tar zxf zlib-1.2.11.tar.gz
+cd zlib-1.2.11
+./configure --prefix=$1
+make  LDFLAGS="-L$1/lib -L$1/lib64 -Wl,--rpath=$1/lib"
+make  install
+cd ../
+rm -rf zlib-1.2.11*
+
+# build gdbm
+# this library is for ruby
+wget ftp://ftp.gnu.org/gnu/gdbm/gdbm-1.13.tar.gz
+tar zxf gdbm-1.13.tar.gz
+cd gdbm-1.13
+./configure --prefix=$1 CFLAGS=-I$1/include LDFLAGS="-L$1/lib -L$1/lib64 -Wl,--rpath=$1/lib"
+make
+make  install
+cd ../
+rm -rf gdbm-1.13*
+
+# build readline
+# this library is for ruby
+wget http://git.savannah.gnu.org/cgit/readline.git/snapshot/readline-master.tar.gz
+tar zxf readline-master.tar.gz
+cd readline-master
+./configure --prefix=$1 CFLAGS=-I$1/include LDFLAGS="-L$1/lib -L$1/lib64 -Wl,--rpath=$1/lib"
+make
+make  install
+cd ../
+rm -rf readline-master*
+
+# build sqlite3
+# this library is for python
+wget https://sqlite.org/2017/sqlite-autoconf-3190300.tar.gz
+tar zxf sqlite-autoconf-3190300.tar.gz
+cd sqlite-autoconf-3190300
+./configure --prefix=$1 CFLAGS=-I$1/include LDFLAGS="-L$1/lib -L$1/lib64 -Wl,--rpath=$1/lib"
+make
+make  install
+cd ../
+rm -rf sqlite-autoconf-3190300*
+
+# build bz2
+# this library is for python
+wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+tar zxf bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make  -f Makefile-libbz2_so
+make install PREFIX=$1
+cp libbz2.so.1.0* $1/lib
+cd ../
+rm -rf bzip2-1.0.6*
+
+# build openssl
+wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz
+tar zxf openssl-1.1.0f.tar.gz
+cd openssl-1.1.0f
+./config shared zlib --prefix=$1 -I$1/include -L$1/lib -L$1/lib64
+make
+make  install
+cd ..
+rm -rf openssl-1.1.0f*
+
+# build ruby
+wget https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.1.tar.gz
+tar zxf ruby-2.4.1.tar.gz
+cd ruby-2.4.1
+./configure --prefix=$1 CFLAGS=-I$1/include LDFLAGS="-L$1/lib -L$1/lib64"
+make
+make  install
+cd ..
+rm -rf ruby-2.4.1*
+
+# build python
+wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz
+tar Jxf Python-3.6.1.tar.xz
+cd Python-3.6.1
+./configure --prefix=$1 CFLAGS=-I$1/include LDFLAGS="-L$1/lib -L$1/lib64"
+make
+make  install
+cd ..
+rm -rf Python-3.6.1*
